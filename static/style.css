@@ -1,4 +1,16 @@
+#MainMenu {
+    visibility: hidden;
+}
 
+header[data-testid="stHeader"] {
+    visibility: hidden;
+    height: 0;
+}
+
+div[data-testid="stToolbar"] {
+    visibility: hidden;
+    height: 0;
+}
 
 .stApp {
   background-color: #0A0D14;
