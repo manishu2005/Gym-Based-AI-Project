@@ -35,15 +35,8 @@ class VideoProcessorClass(VideoProcessorBase):
             output_segmentation_masks=False
         )
 
-        try:
-            self._landmarker = vision.PoseLandmarker.create_from_options(options)
-        except Exception as e:
-            import traceback
-            print("========== MEDIAPIPE ERROR ==========")
-            traceback.print_exc()
-            print("=====================================")
-            raise
-            
+        # self._landmarker = vision.PoseLandmarker.create_from_options(options)
+        self._landmarker = None
         self._detectors = {
             "Squats":SquatsDetector(),
             "Push-ups":PushUpDetector(),
