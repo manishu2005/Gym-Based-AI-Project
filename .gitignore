@@ -1,0 +1,4 @@
+.streamlit
+.env
+data.db
+myenv
