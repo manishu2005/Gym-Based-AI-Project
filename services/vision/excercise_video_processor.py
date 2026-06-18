@@ -20,6 +20,10 @@ class VideoProcessorClass(VideoProcessorBase):
         self._excercise_type = "Squats"
 
         model_path = os.path.join(os.getcwd(), "ml_models","pose_landmarker_full.task")
+        print("Current Working Dir:", os.getcwd())
+        print("Model Path:", model_path)
+        print("Model Exists:", os.path.exists(model_path))
+
         base_option = python.BaseOptions(model_asset_path=model_path)
         
         options = vision.PoseLandmarkerOptions(
@@ -31,8 +35,15 @@ class VideoProcessorClass(VideoProcessorBase):
             output_segmentation_masks=False
         )
 
-        self._landmarker = vision.PoseLandmarker.create_from_options(options)
-
+        try:
+            self._landmarker = vision.PoseLandmarker.create_from_options(options)
+        except Exception as e:
+            import traceback
+            print("========== MEDIAPIPE ERROR ==========")
+            traceback.print_exc()
+            print("=====================================")
+            raise
+            
         self._detectors = {
             "Squats":SquatsDetector(),
             "Push-ups":PushUpDetector(),
