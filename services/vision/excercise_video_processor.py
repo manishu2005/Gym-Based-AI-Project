@@ -31,8 +31,8 @@ class VideoProcessorClass(VideoProcessorBase):
             output_segmentation_masks=False
         )
 
-        # self._landmarker = vision.PoseLandmarker.create_from_options(options)
-        self._landmarker = None
+        self._landmarker = vision.PoseLandmarker.create_from_options(options)
+
         self._detectors = {
             "Squats":SquatsDetector(),
             "Push-ups":PushUpDetector(),
