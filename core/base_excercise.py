@@ -1,14 +1,15 @@
-import math
+import math 
 from abc import ABC, abstractmethod
+
 
 class BaseExercise(ABC):
     def __init__(self):
-        self.reps=0
-        self.stage=None
+        self.reps = 0
+        self.stage = None
 
-    def calculate_angle(self, a,b,c):
-        ax, ay = a[0]-b[0], a[1]-b[1]
-        cx, cy = c[0] - b[0] , c[1] - b[1]
+    def calculate_angle(self, a, b, c):
+        ax, ay = a[0] - b[0], a[1] - b[1]
+        cx, cy = c[0] - b[0], c[1] - b[1]
 
         dot = ax * cx + ay * cy
 
@@ -22,7 +23,7 @@ class BaseExercise(ABC):
 
         return math.degrees(math.acos(cos_angle))
 
-    def get_points(self, landmarks, idx):
+    def get_point(self, landmarks, idx):
         p = landmarks[idx]
 
         return (p.x, p.y)
