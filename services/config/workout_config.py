@@ -1,17 +1,18 @@
-EXCERCISE_OPTIONS=[
-    "Push-ups",
+EXERCISE_OPTIONS=[
     "Squats",
-    "Lunges",
-    "Planks",
+    "Push-ups",
+    "Biceps Curls (Dumbbell)",
     "Shoulder Press",
+    "Lunges"
 ]
 
 
 POSE_CONNECTIONS = [
-    (11, 12), (11, 13), (13, 15), (12, 14), (14, 16),       # Shoulders & Arms
-    (11, 23), (12, 24), (23, 24),                           # Torso / Hips
+    (11, 12), (11, 13), (13, 15), (12, 14), (14, 16),       
+    (11, 23), (12, 24), (23, 24),                           
     (23, 25), (24, 26), (25, 27), (26, 28), (27, 29), (28, 30), (29, 31), (30, 32), (27, 31), (28, 32)  # Legs
 ]
+
 
 METRICS_FIELDS = {
     "Squats": {
@@ -24,7 +25,7 @@ METRICS_FIELDS = {
         "body_alignment": "N/A",
         "hip_status": "N/A",
     },
-    "Biceps Curls(Dumbbell)": {
+    "Biceps Curls (Dumbbell)": {
         "elbow_angle": 0,
         "shoulder_status": "N/A",
         "swing_status": "N/A",
@@ -43,7 +44,7 @@ METRICS_FIELDS = {
 
 
 PROMPT = (
-    "You are AI Coach, a professional AI gym trainer monitoring a user's workout via live camera.\n\n"
+    "You are Apna AI Coach, a professional AI gym trainer monitoring a user's workout via live camera.\n\n"
     "### Your Role\n"
     "Provide around 10-15 words, high-energy coaching cues. You speak these aloud, so they must be natural and encouraging.\n\n"
     "### Input Format\n"
