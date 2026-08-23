@@ -1,7 +1,8 @@
 import math
-from core.base_excercise import BaseExercise
+from core.base_exercise import BaseExercise
 
-class BicepCurlDetector(BaseExercise):
+
+class BicepsCurlDetector(BaseExercise):
     UP_THRESHOLD = 50
     DOWN_THRESHOLD = 160
     MIN_VISIBILITY = 0.7
@@ -22,12 +23,11 @@ class BicepCurlDetector(BaseExercise):
         self._shoulder_x_baseline = None
 
     def reset(self) -> None:
-        self.reps =0
-        self.stage =None
+        self.reps = 0
+        self.stage = None
         self._shoulder_x_baseline = None
 
-    
-    def process(self, landmarks)->dict:
+    def process(self, landmarks) -> dict:
         left_vis = landmarks[self.LEFT_ELBOW].visibility
         right_vis = landmarks[self.RIGHT_ELBOW].visibility
 
@@ -41,16 +41,12 @@ class BicepCurlDetector(BaseExercise):
             wrist_idx = self.RIGHT_WRIST
 
         elbow_angle = self.calculate_angle(
-            self.get_points(landmarks, shoulder_idx),
-            self.get_points(landmarks, elbow_idx),
-            self.get_points(landmarks, wrist_idx)
+            self.get_point(landmarks, shoulder_idx),
+            self.get_point(landmarks, elbow_idx),
+            self.get_point(landmarks, wrist_idx),
         )
 
-        key_landmarks_visible = (
-            landmarks[shoulder_idx].visibility >= self.MIN_VISIBILITY and
-            landmarks[elbow_idx].visibility >= self.MIN_VISIBILITY and
-            landmarks[wrist_idx].visibility >= self.MIN_VISIBILITY
-        )
+        key_landmarks_visible = landmarks[shoulder_idx].visibility > self.MIN_VISIBILITY and landmarks[elbow_idx].visibility > self.MIN_VISIBILITY and landmarks[wrist_idx].visibility > self.MIN_VISIBILITY
 
         if key_landmarks_visible:
             if elbow_angle < self.UP_THRESHOLD:
@@ -64,16 +60,16 @@ class BicepCurlDetector(BaseExercise):
         elbow_x = landmarks[elbow_idx].x
         elbow_drift = abs(elbow_x - shoulder_x)
 
-        if elbow_drift >= self.ELBOW_DRIFT_TOLERANCE:
-            shoulder_status = "Stable"
+        if elbow_drift <= self.ELBOW_DRIFT_TOLERANCE:
+            shoulder_status = "STABLE"
         else:
-            shoulder_status = "Elbow Drifting"
+            shoulder_status = "ELBOW DRIFTING"
 
-        shoulder_mid_x = (landmarks[self.LEFT_SHOULDER].x + landmarks[self.RIGHT_SHOULDER].x) /2
-        shoulder_mid_y = (landmarks[self.LEFT_SHOULDER].y + landmarks[self.RIGHT_SHOULDER].y) /2
+        shoulder_mid_x = (landmarks[self.LEFT_SHOULDER].x + landmarks[self.RIGHT_SHOULDER].x) / 2
+        shoulder_mid_y = (landmarks[self.LEFT_SHOULDER].y + landmarks[self.RIGHT_SHOULDER].y) / 2
 
-        hip_mid_x = (landmarks[self.LEFT_HIP].x + landmarks[self.RIGHT_HIP].x)/2
-        hip_mid_y = (landmarks[self.LEFT_HIP].y + landmarks[self.RIGHT_HIP].y)/2
+        hip_mid_x = (landmarks[self.LEFT_HIP].x + landmarks[self.RIGHT_HIP].x) / 2
+        hip_mid_y = (landmarks[self.LEFT_HIP].y + landmarks[self.RIGHT_HIP].y) / 2
 
         dx = shoulder_mid_x - hip_mid_x
         dy = shoulder_mid_y - hip_mid_y
@@ -81,18 +77,17 @@ class BicepCurlDetector(BaseExercise):
         torso_angle_from_vertical = self._safe_angle(dx, dy)
 
         if torso_angle_from_vertical <= self.SWING_THRESHOLD:
-            swing_status  = "No Swing"
+            swing_status = "NO SWING"
         else:
-            swing_status = "Swimming"
+            swing_status = "SWINGING"
 
-        return{
+        return {
             "reps": self.reps,
-            "elbow_angle":int(elbow_angle),
+            "elbow_angle": int(elbow_angle),
             "shoulder_status": shoulder_status,
-            "swing_status":swing_status,
+            "swing_status": swing_status,
         }
-    
+
     def _safe_angle(self, dx, dy):
-        return math.degrees(math.atan2(abs(dx), abs(dy)))  if dy != 0 else 0.0
-        
-           
+        return math.degrees(math.atan2(abs(dx), abs(dy))) if dy != 0 else 0.0
+    
