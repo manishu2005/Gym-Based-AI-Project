@@ -1,13 +1,13 @@
+import os
 import cv2
 import av
+import urllib.request
 import numpy as np
+import mediapipe as mp
 import threading
 from streamlit_webrtc import VideoProcessorBase
-
-# Direct explicit subpackage imports
-import mediapipe.python.solutions.pose as mp_pose
-import mediapipe.python.solutions.drawing_utils as mp_drawing
-
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 from detectors.squats import SquatDetector
 from detectors.pushup import PushUpDetector
 from detectors.biceps_curls import BicepsCurlDetector
@@ -15,20 +15,35 @@ from detectors.shoulder_press import ShoulderPressDetector
 from detectors.lunges import LungesDetector
 from services.config.workout_config import POSE_CONNECTIONS
 
+MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task"
+
+
 class VideoProcessorClass(VideoProcessorBase):
     def __init__(self):
         self._lock = threading.Lock()
         self._latest_metrics = None
         self._exercise_type = "Squats"
 
-        # Direct initialization without relying on mp.solutions namespace
-        self._pose = mp_pose.Pose(
-            static_image_mode=False,
-            model_complexity=1,
-            smooth_landmarks=True,
-            min_detection_confidence=0.7,
+        # Model download and safe path resolution
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        models_dir = os.path.join(base_dir, "ml_models")
+        os.makedirs(models_dir, exist_ok=True)
+        model_path = os.path.join(models_dir, "pose_landmarker_full.task")
+
+        if not os.path.exists(model_path) or os.path.getsize(model_path) < 1000:
+            urllib.request.urlretrieve(MODEL_URL, model_path)
+
+        base_option = python.BaseOptions(model_asset_path=model_path)
+        options = vision.PoseLandmarkerOptions(
+            base_options=base_option,
+            running_mode=vision.RunningMode.VIDEO,
+            min_pose_detection_confidence=0.7,
+            min_pose_presence_confidence=0.7,
             min_tracking_confidence=0.7,
+            output_segmentation_masks=False,
         )
+
+        self._landmarker = vision.PoseLandmarker.create_from_options(options)
 
         self._detectors = {
             "Squats": SquatDetector(),
@@ -37,6 +52,8 @@ class VideoProcessorClass(VideoProcessorBase):
             "Shoulder Press": ShoulderPressDetector(),
             "Lunges": LungesDetector(),
         }
+
+        self._frame_timestamps_ms = 0
 
     def set_latest_metrics(self, metrics):
         with self._lock:
@@ -181,12 +198,18 @@ class VideoProcessorClass(VideoProcessorBase):
             dtype=np.uint8,
         )
 
-        # Convert to RGB for MediaPipe processing
+        # Convert BGR to RGB for MediaPipe Image
         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        result = self._pose.process(rgb_image)
+        mp_image = mp.Image(
+            image_format=mp.ImageFormat.SRGB,
+            data=rgb_image,
+        )
+
+        self._frame_timestamps_ms += 30
+        result = self._landmarker.detect_for_video(mp_image, self._frame_timestamps_ms)
 
         if result.pose_landmarks:
-            landmarks = result.pose_landmarks.landmark
+            landmarks = result.pose_landmarks[0]
             self._draw_skeleton(image, landmarks)
 
             ex_type = self.get_exercise()
