@@ -37,17 +37,25 @@ def main():
 
     if "voice_pipeline" not in st.session_state:
         try:
-            api_key = os.environ.get("GROQ_API_KEY", "")
-
-            if not api_key and hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
+            # 1. Resolve API key from st.secrets or os.environ
+            api_key = None
+            if hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
                 api_key = st.secrets["GROQ_API_KEY"]
-            
-            groq_client = Groq(api_key=api_key)
-            llm_coach = LLMCoach(groq_client)
-            tts = TextToSpeech()
-            st.session_state.voice_pipeline = VoicePipeline(llm_coach, tts)
+            if not api_key:
+                api_key = os.environ.get("GROQ_API_KEY", "")
+
+            if not api_key:
+                st.sidebar.warning("⚠️ GROQ_API_KEY is missing. Voice coaching is inactive.")
+                st.session_state.voice_pipeline = None
+            else:
+                groq_client = Groq(api_key=api_key)
+                llm_coach = LLMCoach(groq_client)
+                tts = TextToSpeech()
+                st.session_state.voice_pipeline = VoicePipeline(llm_coach, tts)
         except Exception as e:
+            st.sidebar.error(f"Voice Pipeline Init Error: {e}")
             st.session_state.voice_pipeline = None
+          
 
     workout_started = st.session_state.get("workout_started", False)
     
