@@ -5,9 +5,9 @@ from services.config.workout_config import PROMPT
 logger = logging.getLogger(__name__)
 
 DEFAULT_MODELS = [
-    "llama-3.1-8b-instant",
-    "llama-3.3-70b-versatile",
-    "mixtral-8x7b-32768",
+    "qwen/qwen3.8-27b",
+    "meta-llama/llama-prompt-guard-2-22m",
+    "openai/gpt-oss-120b",
 ]
 
 
