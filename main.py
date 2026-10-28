@@ -170,6 +170,8 @@ def main():
  
     if st.session_state.get("audio_to_play"):
         autoplay_audio(st.session_state.audio_to_play)
+        # Clear immediately so subsequent 250ms reruns don't replay the same clip
+        st.session_state.audio_to_play = None
 
     if st.session_state.get("coach_feedback"):
         st.markdown("")
