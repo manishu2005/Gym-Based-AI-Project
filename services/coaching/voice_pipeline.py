@@ -1,6 +1,6 @@
 import time
 import streamlit as st
-
+import base64
 
 class VoicePipeline:
     def __init__(self, llm, tts):
