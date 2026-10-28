@@ -84,11 +84,24 @@ class VoicePipeline:
 
         return voice, text
     
-
-def autoplay_audio(audio_bytes):
-    if not audio_bytes:
+def autoplay_audio(audio_data: bytes | str):
+    """
+    Renders audio directly inside the user's browser via HTML5 audio.
+    Accepts either raw audio bytes or a path to a generated audio file.
+    """
+    if not audio_data:
         return
-    
-    st.markdown("<style>[data-testid='stAudio'] {display: none;}</style>", unsafe_allow_html=True)
-    
-    st.audio(audio_bytes, format="audio/mp3", autoplay=True)
+
+    if isinstance(audio_data, str):
+        with open(audio_data, "rb") as f:
+            audio_bytes = f.read()
+    else:
+        audio_bytes = audio_data
+
+    b64 = base64.b64encode(audio_bytes).decode()
+    audio_html = f"""
+        <audio autoplay="true" style="display:none;">
+            <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+        </audio>
+    """
+    st.markdown(audio_html, unsafe_allow_html=True)
