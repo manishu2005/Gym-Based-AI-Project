@@ -1,6 +1,7 @@
 libgl1
 libglib2.0-0t64
+libgomp1
+libgles2
 libsm6
 libxext6
-libgomp1
 libxrender-dev
