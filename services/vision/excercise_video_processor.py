@@ -1,9 +1,13 @@
 import cv2
 import av
 import numpy as np
-import mediapipe as mp
 import threading
 from streamlit_webrtc import VideoProcessorBase
+
+# Direct explicit subpackage imports
+import mediapipe.python.solutions.pose as mp_pose
+import mediapipe.python.solutions.drawing_utils as mp_drawing
+
 from detectors.squats import SquatDetector
 from detectors.pushup import PushUpDetector
 from detectors.biceps_curls import BicepsCurlDetector
@@ -11,21 +15,19 @@ from detectors.shoulder_press import ShoulderPressDetector
 from detectors.lunges import LungesDetector
 from services.config.workout_config import POSE_CONNECTIONS
 
-
 class VideoProcessorClass(VideoProcessorBase):
     def __init__(self):
         self._lock = threading.Lock()
         self._latest_metrics = None
         self._exercise_type = "Squats"
 
-        # Standard MediaPipe Solutions API (No libEGL / libGLES C-bindings dependency)
-        self._mp_pose = mp.solutions.pose
-        self._pose = self._mp_pose.Pose(
+        # Direct initialization without relying on mp.solutions namespace
+        self._pose = mp_pose.Pose(
             static_image_mode=False,
             model_complexity=1,
             smooth_landmarks=True,
             min_detection_confidence=0.7,
-            min_tracking_confidence=0.7
+            min_tracking_confidence=0.7,
         )
 
         self._detectors = {
